@@ -1,7 +1,6 @@
 const fp = require('fastify-plugin');
 const knex = require('knex');
 const dbConfig = require('../../../configs/database');
-
 module.exports = fp(
     async function(appInstance){
           try {
