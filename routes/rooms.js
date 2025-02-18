@@ -3,7 +3,7 @@ module.exports = fp(
     async function (appInstance) {
         //#region Rooms
         //get chat rooms list by room id
-        appInstance.get("/api/rooms", { }, async function (req, rep) {
+        appInstance.get("/api/rooms", {}, async function (req, rep) {
             try {
                 const data = await this.db("chat_rooms").select("*");
                 return rep.code(200).send({
@@ -143,27 +143,28 @@ module.exports = fp(
         });
 
         appInstance.get("/api/chats/:roomId", {}, async function (req, rep) {
-          try {
-            const params = req.params;
-            const { roomId } = params;
-            const room = await this.db("chat_rooms")
-              .select("*")
-              .where({ id: roomId })
-              .first();
+            try {
+                const params = req.params;
+                const { roomId } = params;
+                const room = await this.db("chat_rooms")
+                    .select("*")
+                    .where({ id: roomId })
+                    .first();
 
-            const chats = await this.db("messages").select("*").where({ room_id: roomId })
-            return rep.code(201).send({
-              status: "LOADED",
-              statusCode: 201,
-              message: "Room GET DATA",
-              payload: {
-                params,
-                data: chats,
-              },
-            });
-          } catch (error) {
-            return error;
-          }
+                const chats = await this.db("messages").join('users', 'messages.user_id', '=', 'users.id')
+                    .select('messages.*', 'users.name').where({ room_id: roomId })
+                return rep.code(201).send({
+                    status: "LOADED",
+                    statusCode: 201,
+                    message: "Room GET DATA",
+                    payload: {
+                        params,
+                        data: chats,
+                    },
+                });
+            } catch (error) {
+                return error;
+            }
         });
 
         //#endregion Rooms
