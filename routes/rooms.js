@@ -5,7 +5,29 @@ module.exports = fp(
         //get chat rooms list by room id
         appInstance.get("/api/rooms", {}, async function (req, rep) {
             try {
-                const data = await this.db("chat_rooms").select("*");
+                const data = await this.db("chat_rooms").join('users', 'chat_rooms.admin_id', '=', 'users.id').select("chat_rooms.*", "users.name as admin_name");
+                return rep.code(200).send({
+                    status: "LOADED",
+                    statusCode: 200,
+                    message: "Room Data Feched",
+                    payload: {
+                        data
+                    },
+                });
+            } catch (error) {
+                return error;
+            }
+        });
+
+        appInstance.get("/api/rooms/user/:userId", {}, async function (req, rep) {
+            try {
+                const {userId} = req.params;
+                console.log(userId);
+                const data = await this.db('chat_rooms')
+                    .select('chat_rooms.*')
+                    .join('users_chat_rooms', 'chat_rooms.id', 'users_chat_rooms.room_id')
+                    .join('users', 'users.id', 'users_chat_rooms.user_id')
+                    .where('users.id', userId);
                 return rep.code(200).send({
                     status: "LOADED",
                     statusCode: 200,
@@ -52,7 +74,7 @@ module.exports = fp(
             try {
                 const { name, admin_id } = req.body;
                 const [roomId] = await this.db("chat_rooms").insert({ name, admin_id });
-                const room = await this.db("chat_rooms").select("*").where({ id: admin_id });
+                const room = await this.db("chat_rooms").select("*").where({ id: roomId });
                 return rep.code(201).send({
                     status: "CREATED",
                     statusCode: 201,
@@ -71,7 +93,9 @@ module.exports = fp(
             try {
                 const params = req.params; //  parameters url
                 const { roomId } = req.params; // room id under parameters
-                const { name, admin_id } = req.body; // request body [data sended by url post]
+                const { name, admin_id, room_users } = req.body; // request body [data sended by url post]
+                console.log(room_users);
+
                 let room = {};
                 const roomExist = await this.db("chat_rooms")
                     .select("*")
@@ -96,6 +120,14 @@ module.exports = fp(
                         .select("*")
                         .where({ id: roomId })
                         .first();
+                }
+                for (const user_id of room_users) {
+                    await this.db('users_chat_rooms').insert({
+                        user_id: user_id,
+                        room_id: roomId,
+                        created_at: this.db.fn.now(),
+                        updated_at: this.db.fn.now()
+                    });
                 }
                 return rep.code(200).send({
                     status: "UPDATED",

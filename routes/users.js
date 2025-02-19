@@ -61,9 +61,8 @@ module.exports = fp(
         //Update user by userId
         appInstance.put("/api/users/update/:userId", { preHandler: [appInstance.authenticate] }, async function (req, rep) {
             try {
-                const params = req.params; //  parameters url
                 const { userId } = req.params; // user id under parameters
-                const { name, email } = req.body; // request body [data sended by url post]
+                const { name, email , role } = req.body; // request body [data sended by url post]
                 let user = {};
                 const userExist = await this.db("users")
                     .select("*")
@@ -74,14 +73,14 @@ module.exports = fp(
                         status: "DATA_NOT_FOUND",
                         statusCode: 404,
                         message: "No User Data",
-                        payload: {
+                        // payload: {
                             params,
-                            user,
-                        },
+                        //     user,
+                        // },
                     });
                 }
                 const result = await this.db("users")
-                    .update({ name, email, updated_at: this.db.fn.now() })
+                    .update({ name, email , role, updated_at: this.db.fn.now() })
                     .where({ id: userId }); // update user row in database
                 if (result) {
                     user = await this.db("users")
@@ -93,10 +92,10 @@ module.exports = fp(
                     status: "UPDATED",
                     statusCode: 200,
                     message: "User PUT DATA",
-                    payload: {
-                        params,
-                        user,
-                    },
+                    // payload: {
+                    //     params,
+                    //     user,
+                    // },
                 });
             } catch (error) {
                 return error;

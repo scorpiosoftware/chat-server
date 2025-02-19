@@ -23,7 +23,7 @@ const routes = require('../routes/index')
 
 
 app.register(FastifCors, {
-    origin: '*',
+    origin: "*",
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type']
 })
