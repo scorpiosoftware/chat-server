@@ -1,4 +1,5 @@
 const fp = require("fastify-plugin");
+const makeHash = require('../app/Actions/HashPassword');
 module.exports = fp(
   async function (appInstance) {
     //#region Auth
@@ -63,6 +64,7 @@ module.exports = fp(
       async function (req, rep) {
         try {
           const { name, email, password } = req.body;
+          const encryptedPassword = makeHash(password);
           const userExist = await this.db("users")
             .select("*")
             .where({ email: email })
@@ -78,9 +80,9 @@ module.exports = fp(
             });
           }
           const [userId] = await this.db("users").insert({
-            name,
-            email,
-            password,
+            name:name,
+            email:email,
+            password:encryptedPassword,
           });
           const user = await this.db("users").select("*").where({ id: userId });
           const token = appInstance.jwt.sign({

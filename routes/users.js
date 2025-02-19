@@ -37,7 +37,26 @@ module.exports = fp(
                 return error;
             }
         });
-        //get user by id
+        //get users by room id
+        appInstance.get("/api/users/room/:roomId", { preHandler: [appInstance.authenticate] }, async function (req, rep) {
+            try {
+                const params = req.params;
+                const users_rooms = await this.db("users_chat_rooms")
+                    .select("*")
+                    .where({ room_id: params.roomId })
+                  
+                return rep.code(201).send({
+                    status: "LOADED",
+                    statusCode: 201,
+                    message: "GET USERS BY ROOM DATA",
+                    payload: {
+                        users: users_rooms
+                    },
+                });
+            } catch (error) {
+                return error;
+            }
+        });
         appInstance.get("/api/users/:userId", { preHandler: [appInstance.authenticate] }, async function (req, rep) {
             try {
                 const params = req.params;
@@ -131,8 +150,6 @@ module.exports = fp(
             });
         });
         //#endregion
-
-
     },
     { name: "app-routes" }
 );

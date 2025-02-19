@@ -10,9 +10,11 @@ module.exports = {
   migrations:{
     tableName: 'fastify_migrations',
     directory : './databases/migrations',
+
   },
 
   seeds : {
-     directory : "./databases/seeds"
+     directory : "./databases/seeds",
+     order: ['user_table_seeder.js', 'chat_rooms_table_seeder.js']
   }
 };

@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> } 

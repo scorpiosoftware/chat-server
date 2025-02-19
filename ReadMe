@@ -1,0 +1,12 @@
+run commands :
+
+npx knex migrate:latest
+npx knex seed:run --specific=user_table_seeder.js
+npx knex seed:run --specific=chat_rooms_table_seeder.js
+
+application connected to Mysql database because i faced some issues with postgresql installer on my windows
+but you can try to connect with pg by changin attribute on .env file and it will work properly
+
+to start Server run : npm start
+
+the admin user is admin@admin.com and password is 12345678 {default user to test login}
